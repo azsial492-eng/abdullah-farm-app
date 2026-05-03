@@ -26,12 +26,11 @@ export default function EggProduction() {
     e.preventDefault();
     if (total > 0) {
       addEggRecord({
-        id: Math.random().toString(),
         date,
         totalCollected: total,
         goodEggs: numGood,
         damagedEggs: numDamaged,
-        traysPacked: trays
+        traysPacked: trays,
       });
       setGoodEggs("");
       setDamagedEggs("");

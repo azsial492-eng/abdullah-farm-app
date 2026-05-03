@@ -138,7 +138,6 @@ export default function Labor() {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     addWorker({
-      id: Math.random().toString(36).slice(2),
       name: fd.get("name") as string,
       role: fd.get("role") as string,
       dailyWage: parseFloat(fd.get("wage") as string) || 0,
@@ -150,7 +149,6 @@ export default function Labor() {
   const handleLogDailyLabor = () => {
     if (dayStats.total > 0) {
       addTransaction({
-        id: Math.random().toString(36).slice(2),
         type: "expense",
         category: "Labor",
         amount: dayStats.total,
@@ -164,7 +162,6 @@ export default function Labor() {
   const handleLogMonthlySalary = () => {
     if (totalMonthlyEarned > 0) {
       addTransaction({
-        id: Math.random().toString(36).slice(2),
         type: "expense",
         category: "Labor",
         amount: totalMonthlyEarned,
@@ -192,7 +189,7 @@ export default function Labor() {
   };
   const itemVariants = {
     hidden: { opacity: 0, y: 14 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } },
   };
 
   return (

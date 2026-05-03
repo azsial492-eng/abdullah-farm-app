@@ -28,12 +28,12 @@ export default function FlockManagement() {
   const handleAddBatch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const qty = parseInt(formData.get("quantity") as string);
     addBatch({
-      id: Math.random().toString(),
       name: formData.get("name") as string,
       dateAdded: formData.get("date") as string,
-      initialBirds: parseInt(formData.get("quantity") as string),
-      activeBirds: parseInt(formData.get("quantity") as string),
+      initialBirds: qty,
+      activeBirds: qty,
       breed: formData.get("breed") as string,
       ageWeeks: parseInt(formData.get("age") as string),
     });

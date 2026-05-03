@@ -38,7 +38,6 @@ export default function Inventory() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     addInventoryItem({
-      id: Math.random().toString(),
       name: formData.get("name") as string,
       quantity: parseInt(formData.get("quantity") as string),
       unit: formData.get("unit") as string,

@@ -36,7 +36,6 @@ export default function Health() {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     addHealthEvent({
-      id: Math.random().toString(36).slice(2),
       batchId,
       vaccineName: fd.get("vaccine") as string,
       date: fd.get("date") as string,

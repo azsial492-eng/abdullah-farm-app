@@ -33,7 +33,6 @@ export default function Finance() {
   const handleLogRevenue = () => {
     if (estimatedRevenue > 0) {
       addTransaction({
-        id: Math.random().toString(),
         type: "income",
         category: "Egg Sales",
         amount: estimatedRevenue,
@@ -48,7 +47,6 @@ export default function Finance() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     addTransaction({
-      id: Math.random().toString(),
       type: txType,
       category: formData.get("category") as string,
       amount: parseFloat(formData.get("amount") as string),
@@ -74,7 +72,7 @@ export default function Finance() {
   };
   const itemVariants = {
     hidden: { opacity: 0, y: 14 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } },
   };
 
   return (
