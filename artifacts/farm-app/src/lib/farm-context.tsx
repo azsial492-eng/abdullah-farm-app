@@ -81,6 +81,7 @@ type FarmContextType = {
   workers: Worker[];
   addWorker: (w: Worker) => void;
   deleteWorker: (id: string) => void;
+  updateWorkerWage: (id: string, dailyWage: number) => void;
   attendance: AttendanceMap;
   setAttendance: (key: string, status: "present" | "absent" | "half") => void;
 };
@@ -161,6 +162,8 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   const addWorker = (w: Worker) => setWorkers(prev => [...prev, w]);
   const deleteWorker = (id: string) => setWorkers(prev => prev.filter(w => w.id !== id));
+  const updateWorkerWage = (id: string, dailyWage: number) =>
+    setWorkers(prev => prev.map(w => w.id === id ? { ...w, dailyWage } : w));
   const setAttendance = (key: string, status: "present" | "absent" | "half") =>
     setAttendanceMap(prev => ({ ...prev, [key]: status }));
 
@@ -172,7 +175,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
       inventory, addInventoryItem,
       healthEvents, addHealthEvent, deleteHealthEvent,
       transactions, addTransaction,
-      workers, addWorker, deleteWorker,
+      workers, addWorker, deleteWorker, updateWorkerWage,
       attendance, setAttendance,
     }}>
       {children}
