@@ -211,7 +211,10 @@ export default function Labor() {
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Add New Worker</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>Add New Worker</DialogTitle>
+              <DialogDescription>Enter the worker's details to add them to the roster.</DialogDescription>
+            </DialogHeader>
             <form onSubmit={handleAddWorker} className="space-y-4">
               <div className="space-y-2">
                 <Label>Full Name</Label>

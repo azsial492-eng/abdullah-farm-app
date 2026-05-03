@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { PackagePlus, PackageMinus, Plus } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 
 export default function Inventory() {
   const { feedStock, addFeed, consumeFeed, inventory, addInventoryItem } = useFarmData();
@@ -100,6 +100,7 @@ export default function Inventory() {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Add Inventory Item</DialogTitle>
+                    <DialogDescription>Fill in the details to add a medicine or supply item.</DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleAddItem} className="space-y-4">
                     <div className="space-y-2">

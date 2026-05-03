@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useState, useMemo } from "react";
 import { ArrowDownRight, ArrowUpRight, PlusCircle, Calculator, LogIn } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 
 const DUMMY_TODAY = "2023-10-07";
 
@@ -94,6 +94,7 @@ export default function Finance() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New Transaction</DialogTitle>
+              <DialogDescription>Record an income or expense entry for the farm.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddTx} className="space-y-4">
               <div className="grid grid-cols-2 gap-2 bg-muted p-1 rounded-md mb-4">

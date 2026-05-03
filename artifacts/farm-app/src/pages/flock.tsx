@@ -63,6 +63,7 @@ export default function FlockManagement() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New Batch</DialogTitle>
+              <DialogDescription>Enter the batch details below to register a new flock.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddBatch} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
