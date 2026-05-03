@@ -1,14 +1,12 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) ?? "";
-const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) ?? "";
+const rawUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-export const isConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+const isHttpUrl = (value?: string) => /^https?:\/\//i.test(value ?? "");
 
-// Always create a client — use placeholder values when env vars are absent
-// so the app loads without crashing. The context guards all DB calls with
-// `isConfigured` so the placeholder client is never actually called.
-export const supabase = createClient(
-  isConfigured ? supabaseUrl : "https://placeholder.supabase.co",
-  isConfigured ? supabaseAnonKey : "placeholder-anon-key",
-);
+export const isConfigured = Boolean(rawUrl && rawKey && isHttpUrl(rawUrl));
+
+export const supabase: SupabaseClient | null = isConfigured && rawUrl && rawKey
+  ? createClient(rawUrl, rawKey)
+  : null;
