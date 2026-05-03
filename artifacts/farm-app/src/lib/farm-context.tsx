@@ -45,12 +45,22 @@ type InventoryItem = {
   notes: string;
 };
 
+export type Worker = {
+  id: string;
+  name: string;
+  role: string;
+  dailyWage: number;
+};
+
+// key: "workerId::date" → "present" | "absent" | "half"
+export type AttendanceMap = Record<string, "present" | "absent" | "half">;
+
 type FarmContextType = {
   batches: Batch[];
   addBatch: (batch: Batch) => void;
   updateMortality: (batchId: string, deadBirds: number) => void;
   deleteBatch: (batchId: string) => void;
-  
+
   eggRecords: EggProduction[];
   addEggRecord: (record: EggProduction) => void;
 
@@ -62,9 +72,15 @@ type FarmContextType = {
   addInventoryItem: (item: InventoryItem) => void;
 
   healthEvents: HealthEvent[];
-  
+
   transactions: Transaction[];
   addTransaction: (tx: Transaction) => void;
+
+  workers: Worker[];
+  addWorker: (w: Worker) => void;
+  deleteWorker: (id: string) => void;
+  attendance: AttendanceMap;
+  setAttendance: (key: string, status: "present" | "absent" | "half") => void;
 };
 
 const FarmContext = createContext<FarmContextType | null>(null);
@@ -93,7 +109,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     { id: "2", name: "Multivitamin", quantity: 12, unit: "Packets", expiryDate: "2024-12-01", notes: "Daily supplement" },
   ]);
 
-  const [healthEvents, setHealthEvents] = useState<HealthEvent[]>([
+  const [healthEvents] = useState<HealthEvent[]>([
     { id: "1", batchId: "2", vaccineName: "Newcastle Disease", date: "2023-09-15", status: "Completed" },
     { id: "2", batchId: "3", vaccineName: "Fowl Pox", date: "2023-10-05", status: "Overdue" },
     { id: "3", batchId: "2", vaccineName: "Infectious Bronchitis", date: "2023-10-10", status: "Upcoming" },
@@ -105,10 +121,28 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     { id: "3", type: "expense", category: "Labor", amount: 24500, date: "2023-10-07", notes: "Weekly wages" },
   ]);
 
+  const [workers, setWorkers] = useState<Worker[]>([
+    { id: "w1", name: "Rashid Ali", role: "Egg Collector", dailyWage: 1200 },
+    { id: "w2", name: "Imran Khan", role: "Feed Manager", dailyWage: 1500 },
+    { id: "w3", name: "Saleem Akhtar", role: "Farm Guard", dailyWage: 1000 },
+    { id: "w4", name: "Tariq Mehmood", role: "Cleaner", dailyWage: 900 },
+  ]);
+
+  // Pre-populate some attendance for dummy dates
+  const [attendance, setAttendanceMap] = useState<AttendanceMap>({
+    "w1::2023-10-07": "present",
+    "w2::2023-10-07": "present",
+    "w3::2023-10-07": "half",
+    "w4::2023-10-07": "absent",
+    "w1::2023-10-06": "present",
+    "w2::2023-10-06": "present",
+    "w3::2023-10-06": "present",
+    "w4::2023-10-06": "present",
+  });
+
   const addBatch = (batch: Batch) => setBatches(prev => [...prev, batch]);
-  const updateMortality = (batchId: string, deadBirds: number) => {
+  const updateMortality = (batchId: string, deadBirds: number) =>
     setBatches(prev => prev.map(b => b.id === batchId ? { ...b, activeBirds: b.activeBirds - deadBirds } : b));
-  };
   const deleteBatch = (batchId: string) => setBatches(prev => prev.filter(b => b.id !== batchId));
 
   const addEggRecord = (record: EggProduction) => setEggRecords(prev => [...prev, record]);
@@ -120,6 +154,11 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   const addTransaction = (tx: Transaction) => setTransactions(prev => [tx, ...prev]);
 
+  const addWorker = (w: Worker) => setWorkers(prev => [...prev, w]);
+  const deleteWorker = (id: string) => setWorkers(prev => prev.filter(w => w.id !== id));
+  const setAttendance = (key: string, status: "present" | "absent" | "half") =>
+    setAttendanceMap(prev => ({ ...prev, [key]: status }));
+
   return (
     <FarmContext.Provider value={{
       batches, addBatch, updateMortality, deleteBatch,
@@ -127,7 +166,9 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
       feedStock, addFeed, consumeFeed,
       inventory, addInventoryItem,
       healthEvents,
-      transactions, addTransaction
+      transactions, addTransaction,
+      workers, addWorker, deleteWorker,
+      attendance, setAttendance,
     }}>
       {children}
     </FarmContext.Provider>
