@@ -28,3 +28,5 @@ externalPort = 80
 [userenv.shared]
 VITE_SUPABASE_ANON_KEY = "sb_publishable_fz8oP8rjIWvQ7UHz9n_5Cw_pWGPoabB"
 VITE_SUPABASE_URL = "https://nefekreclgrocwncyxxo.supabase.co"
+PORT = "3000"
+BASE_PATH = "/"
