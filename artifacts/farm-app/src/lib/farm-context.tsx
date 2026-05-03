@@ -72,6 +72,8 @@ type FarmContextType = {
   addInventoryItem: (item: InventoryItem) => void;
 
   healthEvents: HealthEvent[];
+  addHealthEvent: (event: HealthEvent) => void;
+  deleteHealthEvent: (id: string) => void;
 
   transactions: Transaction[];
   addTransaction: (tx: Transaction) => void;
@@ -109,7 +111,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     { id: "2", name: "Multivitamin", quantity: 12, unit: "Packets", expiryDate: "2024-12-01", notes: "Daily supplement" },
   ]);
 
-  const [healthEvents] = useState<HealthEvent[]>([
+  const [healthEvents, setHealthEvents] = useState<HealthEvent[]>([
     { id: "1", batchId: "2", vaccineName: "Newcastle Disease", date: "2023-09-15", status: "Completed" },
     { id: "2", batchId: "3", vaccineName: "Fowl Pox", date: "2023-10-05", status: "Overdue" },
     { id: "3", batchId: "2", vaccineName: "Infectious Bronchitis", date: "2023-10-10", status: "Upcoming" },
@@ -152,6 +154,9 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   const addInventoryItem = (item: InventoryItem) => setInventory(prev => [...prev, item]);
 
+  const addHealthEvent = (event: HealthEvent) => setHealthEvents(prev => [...prev, event]);
+  const deleteHealthEvent = (id: string) => setHealthEvents(prev => prev.filter(e => e.id !== id));
+
   const addTransaction = (tx: Transaction) => setTransactions(prev => [tx, ...prev]);
 
   const addWorker = (w: Worker) => setWorkers(prev => [...prev, w]);
@@ -165,7 +170,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
       eggRecords, addEggRecord,
       feedStock, addFeed, consumeFeed,
       inventory, addInventoryItem,
-      healthEvents,
+      healthEvents, addHealthEvent, deleteHealthEvent,
       transactions, addTransaction,
       workers, addWorker, deleteWorker,
       attendance, setAttendance,
