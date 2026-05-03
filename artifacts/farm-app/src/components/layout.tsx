@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Bird, Egg, Package, Stethoscope, CircleDollarSign, Menu } from "lucide-react";
+import { LayoutDashboard, Bird, Egg, Package, Stethoscope, CircleDollarSign, Menu, BarChart2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +10,7 @@ const navItems = [
   { href: "/inventory", label: "Inventory & Feed", icon: Package },
   { href: "/health", label: "Health & Vaccination", icon: Stethoscope },
   { href: "/finance", label: "Finance", icon: CircleDollarSign },
+  { href: "/performance", label: "Batch Performance", icon: BarChart2 },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {

@@ -49,6 +49,7 @@ type FarmContextType = {
   batches: Batch[];
   addBatch: (batch: Batch) => void;
   updateMortality: (batchId: string, deadBirds: number) => void;
+  deleteBatch: (batchId: string) => void;
   
   eggRecords: EggProduction[];
   addEggRecord: (record: EggProduction) => void;
@@ -108,6 +109,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
   const updateMortality = (batchId: string, deadBirds: number) => {
     setBatches(prev => prev.map(b => b.id === batchId ? { ...b, activeBirds: b.activeBirds - deadBirds } : b));
   };
+  const deleteBatch = (batchId: string) => setBatches(prev => prev.filter(b => b.id !== batchId));
 
   const addEggRecord = (record: EggProduction) => setEggRecords(prev => [...prev, record]);
 
@@ -120,7 +122,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <FarmContext.Provider value={{
-      batches, addBatch, updateMortality,
+      batches, addBatch, updateMortality, deleteBatch,
       eggRecords, addEggRecord,
       feedStock, addFeed, consumeFeed,
       inventory, addInventoryItem,

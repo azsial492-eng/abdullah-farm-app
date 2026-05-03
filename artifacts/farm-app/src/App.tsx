@@ -13,6 +13,7 @@ import EggProduction from "@/pages/eggs";
 import Inventory from "@/pages/inventory";
 import Health from "@/pages/health";
 import Finance from "@/pages/finance";
+import Performance from "@/pages/performance";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/inventory" component={Inventory} />
         <Route path="/health" component={Health} />
         <Route path="/finance" component={Finance} />
+        <Route path="/performance" component={Performance} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

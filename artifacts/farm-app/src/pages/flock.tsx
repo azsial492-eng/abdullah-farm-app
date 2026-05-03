@@ -4,15 +4,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
 export default function FlockManagement() {
-  const { batches, addBatch, updateMortality } = useFarmData();
+  const { batches, addBatch, updateMortality, deleteBatch } = useFarmData();
   const [mortalityInputs, setMortalityInputs] = useState<Record<string, string>>({});
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const handleMortalitySubmit = (batchId: string) => {
     const val = parseInt(mortalityInputs[batchId]);
@@ -25,7 +28,7 @@ export default function FlockManagement() {
   const handleAddBatch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const newBatch = {
+    addBatch({
       id: Math.random().toString(),
       name: formData.get("name") as string,
       dateAdded: formData.get("date") as string,
@@ -33,9 +36,15 @@ export default function FlockManagement() {
       activeBirds: parseInt(formData.get("quantity") as string),
       breed: formData.get("breed") as string,
       ageWeeks: parseInt(formData.get("age") as string),
-    };
-    addBatch(newBatch);
+    });
     setIsAddOpen(false);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteTarget) {
+      deleteBatch(deleteTarget.id);
+      setDeleteTarget(null);
+    }
   };
 
   return (
@@ -59,27 +68,27 @@ export default function FlockManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Batch Name</Label>
-                  <Input name="name" required placeholder="e.g. Batch D" />
+                  <Input name="name" required placeholder="e.g. Batch D" data-testid="input-batch-name" />
                 </div>
                 <div className="space-y-2">
                   <Label>Date Added</Label>
-                  <Input type="date" name="date" required />
+                  <Input type="date" name="date" required data-testid="input-batch-date" />
                 </div>
                 <div className="space-y-2">
                   <Label>Quantity (Birds)</Label>
-                  <Input type="number" name="quantity" required placeholder="5000" />
+                  <Input type="number" name="quantity" required placeholder="5000" data-testid="input-batch-quantity" />
                 </div>
                 <div className="space-y-2">
                   <Label>Age (Weeks)</Label>
-                  <Input type="number" name="age" required placeholder="16" />
+                  <Input type="number" name="age" required placeholder="16" data-testid="input-batch-age" />
                 </div>
                 <div className="space-y-2 col-span-2">
                   <Label>Breed</Label>
-                  <Input name="breed" required placeholder="Lohmann Brown" />
+                  <Input name="breed" required placeholder="Lohmann Brown" data-testid="input-batch-breed" />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Save Batch</Button>
+                <Button type="submit" data-testid="btn-save-batch">Save Batch</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -100,7 +109,8 @@ export default function FlockManagement() {
                 <TableHead>Age</TableHead>
                 <TableHead className="text-right">Initial Birds</TableHead>
                 <TableHead className="text-right">Active Birds</TableHead>
-                <TableHead className="text-right w-[200px]">Record Mortality</TableHead>
+                <TableHead className="text-right w-[220px]">Record Mortality</TableHead>
+                <TableHead className="w-[60px]" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -110,32 +120,85 @@ export default function FlockManagement() {
                   <TableCell>{batch.dateAdded}</TableCell>
                   <TableCell>{batch.breed}</TableCell>
                   <TableCell>{batch.ageWeeks} weeks</TableCell>
-                  <TableCell className="text-right text-muted-foreground">{batch.initialBirds.toLocaleString()}</TableCell>
-                  <TableCell className="text-right font-bold text-primary">{batch.activeBirds.toLocaleString()}</TableCell>
+                  <TableCell className="text-right text-muted-foreground">
+                    {batch.initialBirds.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right font-bold text-primary">
+                    {batch.activeBirds.toLocaleString()}
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
-                      <Input 
-                        type="number" 
-                        placeholder="Dead" 
+                      <Input
+                        type="number"
+                        placeholder="Dead"
                         className="w-20 h-8 text-right"
                         value={mortalityInputs[batch.id] || ""}
-                        onChange={(e) => setMortalityInputs(prev => ({ ...prev, [batch.id]: e.target.value }))}
-                        onKeyDown={(e) => e.key === 'Enter' && handleMortalitySubmit(batch.id)}
+                        onChange={(e) =>
+                          setMortalityInputs(prev => ({ ...prev, [batch.id]: e.target.value }))
+                        }
+                        onKeyDown={(e) => e.key === "Enter" && handleMortalitySubmit(batch.id)}
+                        data-testid={`input-mortality-${batch.id}`}
                       />
-                      <Button size="sm" variant="secondary" className="h-8" onClick={() => handleMortalitySubmit(batch.id)}>Save</Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-8"
+                        onClick={() => handleMortalitySubmit(batch.id)}
+                        data-testid={`btn-save-mortality-${batch.id}`}
+                      >
+                        Save
+                      </Button>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => setDeleteTarget({ id: batch.id, name: batch.name })}
+                      data-testid={`btn-delete-batch-${batch.id}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
               {batches.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No active batches found.</TableCell>
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    No active batches. Add a batch to get started.
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Batch</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to permanently remove{" "}
+              <span className="font-semibold text-foreground">{deleteTarget?.name}</span>? This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} data-testid="btn-cancel-delete">
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              data-testid="btn-confirm-delete"
+            >
+              Delete Batch
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
