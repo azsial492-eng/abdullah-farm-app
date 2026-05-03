@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { Layout } from "@/components/layout";
 import { FarmProvider } from "@/lib/farm-context";
+import SplashScreen from "@/components/SplashScreen";
+import { useEffect, useState } from "react";
 
 // Pages
 import Dashboard from "@/pages/dashboard";
@@ -37,13 +39,25 @@ function Router() {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowSplash(false), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <FarmProvider>
         <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
+          <div className="relative min-h-screen">
+            <div className={`transition-opacity duration-700 ${showSplash ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <Router />
+              </WouterRouter>
+            </div>
+            {showSplash && <SplashScreen />}
+          </div>
           <Toaster />
         </TooltipProvider>
       </FarmProvider>
