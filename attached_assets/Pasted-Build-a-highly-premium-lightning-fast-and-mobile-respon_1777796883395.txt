@@ -1,0 +1,40 @@
+Build a highly premium, lightning-fast, and mobile-responsive Poultry Farm Management System web application specifically designed for a "Layer Farm" (Egg Production). The app must be built using React, Tailwind CSS, and Lucide React icons. Use dummy data and React state to make all screens fully interactive.
+
+UI/UX & Performance Requirements:
+- Deliver a premium, expensive-feeling, and highly polished user interface. Use modern design trends like soft drop-shadows, rounded corners, clean typography, and a cohesive color palette (e.g., sophisticated agricultural greens combined with clean whites and dark grays).
+- Include high-quality graphics and smooth, subtle animations for page transitions and button interactions to enhance the premium feel.
+- The code must be highly optimized for extremely fast response times and zero-lag interactions.
+
+Crucial Requirement:
+Display the farm name "ABDULLAH PROTIEN FARM" prominently and beautifully at the top of the main Dashboard and in the sidebar header with a high-end, branded look.
+
+Create the following main sections/pages in the app with a sleek sidebar navigation:
+
+1. Dashboard (Overview):
+- Header: "ABDULLAH PROTIEN FARM".
+- Premium Summary Cards (with hover effects): Total Active Birds, Today's Egg Production, Remaining Feed Stock (in bags), and Today's Expenses.
+- An elegantly styled quick alert section (e.g., "Low feed stock alert" or "Vaccination due tomorrow").
+
+2. Flock (Batch) Management:
+- A beautifully styled data table showing active batches of hens.
+- Fast-input fields to record daily mortality (deaths) and automatically update the active birds count.
+- A prominent, stylish button to "Add New Batch" (Date, Quantity, Cost).
+
+3. Egg Production (Layer Specific):
+- A clean, intuitive daily entry form for workers to enter: Total Eggs Collected, Good Eggs, Damaged/Broken Eggs.
+- Calculate and display total egg trays packed today instantly without page reloads.
+- A visually appealing chart or stylized list showing the last 7 days of production.
+
+4. Inventory & Feed Management:
+- Track Feed Bags (Input: Bags added to store, Bags consumed today).
+- Track Medicine/Vaccines inventory.
+
+5. Health & Vaccination:
+- A modern schedule/calendar view showing upcoming vaccination dates for different batches.
+
+6. Finance (Income & Expense):
+- An easy-to-use form to log daily expenses (Feed cost, bills, labor).
+- A form to log daily income (Sale of eggs, sale of old birds).
+- Calculate simple profit/loss dynamically.
+
+Make the UI highly responsive so it feels exactly like a high-end native app on mobile phones and a professional desktop software on PCs.
