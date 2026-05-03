@@ -170,6 +170,13 @@ const WAGE_MULT: Record<"present" | "absent" | "half", number> = {
 // ── Context ────────────────────────────────────────────────────────────────────
 const FarmContext = createContext<FarmContextType | null>(null);
 
+function getSupabase() {
+  if (!supabase) throw new Error("Supabase client is not configured");
+  return supabase;
+}
+
+const db = () => getSupabase();
+
 export function FarmProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState<string | null>(null);
@@ -191,6 +198,15 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
   const feedRef = useRef<number>(0);
   feedRef.current = feedStock;
 
+  const reloadTimerRef = useRef<number | null>(null);
+
+  const scheduleReload = () => {
+    if (reloadTimerRef.current) window.clearTimeout(reloadTimerRef.current);
+    reloadTimerRef.current = window.setTimeout(() => {
+      loadAll();
+    }, 250);
+  };
+
   // ── Initial load ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!isConfigured) {
@@ -201,6 +217,30 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     loadAll();
   }, []);
 
+  useEffect(() => {
+    if (!isConfigured || !supabase) return;
+
+    const channel = supabase
+      .channel("farm-realtime-sync")
+      .on("postgres_changes", { event: "*", schema: "public", table: "batches" }, scheduleReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "egg_production" }, scheduleReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "feed_stock" }, scheduleReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "inventory" }, scheduleReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "health_vaccination" }, scheduleReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "finance_transactions" }, scheduleReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "workers" }, scheduleReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "attendance" }, scheduleReload)
+      .subscribe();
+
+    return () => {
+      if (reloadTimerRef.current) {
+        window.clearTimeout(reloadTimerRef.current);
+        reloadTimerRef.current = null;
+      }
+      getSupabase().removeChannel(channel);
+    };
+  }, []);
+
   async function loadAll() {
     setLoading(true);
     setDbError(null);
@@ -209,14 +249,14 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
         batchRes, eggRes, feedRes, invRes,
         healthRes, txRes, workerRes, attRes,
       ] = await Promise.all([
-        supabase.from("batches").select("*").order("date_added"),
-        supabase.from("egg_production").select("*").order("date", { ascending: false }),
-        supabase.from("feed_stock").select("*").eq("id", 1).maybeSingle(),
-        supabase.from("inventory").select("*").order("created_at"),
-        supabase.from("health_vaccination").select("*").order("scheduled_date"),
-        supabase.from("finance_transactions").select("*").order("date", { ascending: false }),
-        supabase.from("workers").select("*").order("created_at"),
-        supabase.from("attendance").select("*"),
+        db().from("batches").select("*").order("date_added"),
+        db().from("egg_production").select("*").order("date", { ascending: false }),
+        db().from("feed_stock").select("*").eq("id", 1).maybeSingle(),
+        db().from("inventory").select("*").order("created_at"),
+        db().from("health_vaccination").select("*").order("scheduled_date"),
+        db().from("finance_transactions").select("*").order("date", { ascending: false }),
+        db().from("workers").select("*").order("created_at"),
+        db().from("attendance").select("*"),
       ]);
 
       if (batchRes.error) throw batchRes.error;
@@ -250,7 +290,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   // ── Batches ───────────────────────────────────────────────────────────────────
   const addBatch = async (batch: Omit<Batch, "id">) => {
-    const { data, error } = await supabase
+    const { data, error } = await db()
       .from("batches")
       .insert({
         name: batch.name,
@@ -271,17 +311,17 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     if (!batch) return;
     const newActive = batch.activeBirds - deadBirds;
     setBatches(prev => prev.map(b => b.id === batchId ? { ...b, activeBirds: newActive } : b));
-    await supabase.from("batches").update({ active_birds: newActive }).eq("id", batchId);
+    await db().from("batches").update({ active_birds: newActive }).eq("id", batchId);
   };
 
   const deleteBatch = async (batchId: string) => {
     setBatches(prev => prev.filter(b => b.id !== batchId));
-    await supabase.from("batches").delete().eq("id", batchId);
+    await db().from("batches").delete().eq("id", batchId);
   };
 
   // ── Egg Production ────────────────────────────────────────────────────────────
   const addEggRecord = async (record: Omit<EggProduction, "id">) => {
-    const { data, error } = await supabase
+    const { data, error } = await db()
       .from("egg_production")
       .insert({
         date: record.date,
@@ -299,18 +339,18 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
   const addFeed = async (amount: number) => {
     const next = feedRef.current + amount;
     setFeedStock(next);
-    await supabase.from("feed_stock").upsert({ id: 1, bags: next });
+    await db().from("feed_stock").upsert({ id: 1, bags: next });
   };
 
   const consumeFeed = async (amount: number) => {
     const next = Math.max(0, feedRef.current - amount);
     setFeedStock(next);
-    await supabase.from("feed_stock").upsert({ id: 1, bags: next });
+    await db().from("feed_stock").upsert({ id: 1, bags: next });
   };
 
   // ── Inventory ─────────────────────────────────────────────────────────────────
   const addInventoryItem = async (item: Omit<InventoryItem, "id">) => {
-    const { data, error } = await supabase
+    const { data, error } = await db()
       .from("inventory")
       .insert({
         item_name: item.name,
@@ -327,7 +367,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   // ── Health / Vaccination ──────────────────────────────────────────────────────
   const addHealthEvent = async (event: Omit<HealthEvent, "id">) => {
-    const { data, error } = await supabase
+    const { data, error } = await db()
       .from("health_vaccination")
       .insert({
         batch_id: event.batchId,
@@ -343,12 +383,12 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   const deleteHealthEvent = async (id: string) => {
     setHealthEvents(prev => prev.filter(e => e.id !== id));
-    await supabase.from("health_vaccination").delete().eq("id", id);
+    await db().from("health_vaccination").delete().eq("id", id);
   };
 
   // ── Finance ───────────────────────────────────────────────────────────────────
   const addTransaction = async (tx: Omit<Transaction, "id">) => {
-    const { data, error } = await supabase
+    const { data, error } = await db()
       .from("finance_transactions")
       .insert({
         type: tx.type,
@@ -365,7 +405,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   // ── Workers ───────────────────────────────────────────────────────────────────
   const addWorker = async (w: Omit<Worker, "id">) => {
-    const { data, error } = await supabase
+    const { data, error } = await db()
       .from("workers")
       .insert({ name: w.name, role: w.role, daily_wage: w.dailyWage })
       .select()
@@ -376,12 +416,12 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   const deleteWorker = async (id: string) => {
     setWorkers(prev => prev.filter(w => w.id !== id));
-    await supabase.from("workers").delete().eq("id", id);
+    await db().from("workers").delete().eq("id", id);
   };
 
   const updateWorkerWage = async (id: string, dailyWage: number) => {
     setWorkers(prev => prev.map(w => w.id === id ? { ...w, dailyWage } : w));
-    await supabase.from("workers").update({ daily_wage: dailyWage }).eq("id", id);
+    await db().from("workers").update({ daily_wage: dailyWage }).eq("id", id);
   };
 
   // ── Attendance ────────────────────────────────────────────────────────────────
@@ -390,7 +430,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     const [workerId, date] = key.split("::");
     const worker = workersRef.current.find(w => w.id === workerId);
     const calculatedWage = worker ? worker.dailyWage * WAGE_MULT[status] : 0;
-    await supabase.from("attendance").upsert(
+    await db().from("attendance").upsert(
       { worker_id: workerId, date, status, calculated_wage: calculatedWage },
       { onConflict: "worker_id,date" }
     );
