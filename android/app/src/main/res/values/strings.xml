@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Abdullah Protien Farm</string>
+    <string name="title_activity_main">Abdullah Protien Farm</string>
+    <string name="package_name">com.alnoor.abdullahfarm</string>
+    <string name="custom_url_scheme">com.alnoor.abdullahfarm</string>
+</resources>
