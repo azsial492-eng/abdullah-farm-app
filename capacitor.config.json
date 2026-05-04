@@ -1,0 +1,6 @@
+{
+  "appId": "com.alnoor.abdullahfarm",
+  "appName": "Abdullah Protien Farm",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
